@@ -39,60 +39,89 @@ class Game {
 }
 
 class Character {
-    constructor(){
-        this.x = 50;
-        this.y = 300;
-        this.width = 50;
-        this.height = 50;
-        this.speed = 10;
-        this.jumping = false;
-        this.element = document.createElement("div");
-        this.element.classList.add("character");
-        this.updPosition();
-    }
 
-    move(event){
-        if(event.key === "ArrowRight"){
-            this.x += this.speed;
-        } else if (event.key === "ArrowLeft"){
-            this.x -= this.speed;
-        }   else if(event.key === "ArrowUp"){
-            this.jump();
+        constructor(){
+            this.x = 50;
+            this.y = 300;
+            this.width = 50;
+            this.height = 50;
+            this.speed = 10;
+            this.canJump = true; // Opcional - Me permite meter un delay después de cada salto - AMCA
+            this.jumpCount = 0; // Opcional - Lleva la cuenta del numero de saltos - AMCA
+            this.maxJumps = 2; // Opcional - Lo he metido para que salte un máximo de veces - AMCA
+            this.jumpInterval = null;   // Para guardar el intervalo de salto - AMCA
+            this.gravityInterval = null; // Para guardar el intervalo de caída - AMCA
+            this.isFalling = false // A veces se puede ejecutar la caida fall() dos veces, esto me permite controlarlo. - AMCA
+            this.element = document.createElement("div");
+            this.element.classList.add("character");
+            this.updPosition();
         }
-        this.updPosition();
-    }
-
-    jump(){
-        this.jumping = true;
-        let maxHeight = this.y - 100;
-        const jump = setInterval(() => {
-            if(this.y > maxHeight){
-                this.y -= 10
-            } else {
-                clearInterval(jump);
-                this.fall()
+    
+        move(event){
+            if(event.key === "ArrowRight"){
+                this.x += this.speed;
+            } else if (event.key === "ArrowLeft"){
+                this.x -= this.speed;
+            } else if(event.key === "ArrowUp"){
+                this.jump();
             }
             this.updPosition();
-        },
-        20);
-    }
-
-    fall(){
-        const gravity = setInterval(() => {
-            if(this.y < 300){
-                this.y += 10;
-            } else {
-                clearInterval(gravity);
+        }
+    
+        jump(){
+            // Si tiene el maximo de saltos se va fuera y no ejecuta el método - AMCA
+            // También he añadido delay entre salto y salto una vez toque el suelo - AMCA
+            if (!this.canJump || this.jumpCount >= this.maxJumps) return; 
+    
+            this.jumpCount++; // Cada vez que salta añade al contador.
+    
+            /* SOLUCION AL BUG - Si haces un nuevo salto mientras sigue cayendo,
+            para el fall() anterior que era lo que lo bugeaba - AMCA*/
+            if (this.gravityInterval) {
+                clearInterval(this.gravityInterval);
+                this.gravityInterval = null;
             }
-            this.updPosition();
-        },
-            20);
-    }
+    
+            let maxHeight = this.y - 140; 
+            this.jumpInterval = setInterval(() => { //Guarda el intervalo de salto
+                if (this.y > maxHeight) {
+                    this.y -= 15;
+                    this.updPosition();
+                } else {
+                    clearInterval(this.jumpInterval);
+                    this.jumpInterval = null;
+                    this.fall(); 
+                }
+            }, 20);
+        }
+    
+        fall(){
+            if (this.isFalling) return; // Evita que la gravedad se active dos veces - AMCA
 
-    updPosition(){
-        this.element.style.left = `${this.x}px`
-        this.element.style.top = `${this.y}px`
-    }
+            this.gravityInterval = setInterval(() => {
+                if(this.y < 300) {
+                    this.y += 9.8;
+                    this.updPosition();
+                } else {
+                    clearInterval(this.gravityInterval);
+                    this.gravityInterval = null;
+                    this.jumpCount = 0;  
+                    
+                    //Bloquea el salto 300ms antes de permitir otro salto - AMCA
+                    this.canJump = false;
+                    setTimeout(() => {
+                        this.canJump = true;
+                    }, 300);
+                }
+            }, 20);
+        }
+    
+        updPosition(){
+            this.element.style.left = `${this.x}px`;
+            this.element.style.top = `${this.y}px`;
+        }
+    
+    
 
     collisionWhit(obj){
         return (
