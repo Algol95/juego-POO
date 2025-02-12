@@ -5,14 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Aventuras POO</title>
     <link rel="stylesheet" href="style.css" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Audiowide&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Audiowide&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
   </head>
   <body>
-    <h1>Capture the Floppy</h1>
-
-    <div id="game-container"></div>
+    <h1>Netmichi</h1>
+    <audio id="gameMusic" loop>
+      <source src="./src/sounds/bg-music-michiverse.mp3" type="audio/mpeg">
+    </audio>
+    <div id="game-container">
+      <div id="menu-start">
+        <p>
+          ¡Eres Netmichi, un super michi dispuesto a salvar el mundo michi!
+          <br />Los michis han perdido sus michicódigos de michiseguridad para abrir
+          el michiportal a NipParadise. Pero ten michicuidado, los malvados cuervos te lo
+          impedirán.
+        </p>
+        <br />
+        <p>
+          Usa las michiteclas <i class="bi bi-arrow-left-square-fill"></i>
+          <i class="bi bi-arrow-up-square-fill"></i>
+          <i class="bi bi-arrow-right-square-fill"></i> para moverte por el
+          mapa.
+        </p>
+        <button onclick="startGame()"><i class="bi bi-play-fill"></i> Play</button>
+      </div>
+    </div>
     <script type="module" src="main.js"></script>
   </body>
 </html>

@@ -139,7 +139,6 @@ class Character {
                 this.jumpingAir = true; 
                 this.y = 335;
                 this.actualizarPosicion();
-                
                 return;
                 /* ----------------------------- */
             }
@@ -181,5 +180,13 @@ class Coin {
     }
 }
 
-const game = new Game();
-console.log(game);
+function startGame(){
+    const menuStart = document.getElementById("menu-start");
+    menuStart.style.display = "none";
+    const music = document.getElementById("gameMusic");
+    const game = new Game();
+    music.play();
+    console.log(game);
+}
+
+window.startGame = startGame;
