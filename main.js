@@ -41,9 +41,9 @@ class Game {
 class Character {
     constructor(){
         this.x = 50;
-        this.y = 300;
-        this.width = 50;
-        this.height = 50;
+        this.y = 335;
+        this.width = 70;
+        this.height = 70;
         this.speed = 10;
         this.jumpingAir = true; // ARREGLO DE NICO - Controlar salto doble
         this.jumpInterval = null; // Para guardar el intervalo de salto - AMCA
@@ -56,10 +56,12 @@ class Character {
     }
 
     move(event){
-        if(event.key === "ArrowRight"){
+        if(event.key === "ArrowRight" && this.x != 720){
             this.x += this.speed;
-        } else if (event.key === "ArrowLeft"){
+            this.element.classList.add("right")
+        } else if (event.key === "ArrowLeft" && this.x != 0){
             this.x -= this.speed;
+            this.element.classList.remove("right")
         }   else if(event.key === "ArrowUp"){
             this.jump();
         }
@@ -77,8 +79,9 @@ class Character {
             }
 
             this.jumping = true;
-            let maxHeight = this.y - 200;
-
+            let maxHeight = this.y - 150;
+            this.element.classList.remove("fall");
+            this.element.classList.add("jump");
             this.jumpInterval = setInterval(() => {
                 if (this.y > maxHeight) {
                     this.y -= 10;
@@ -123,16 +126,20 @@ class Character {
     fall(){
         this.falling = true;
         this.fallInterval = setInterval(() => {
-            if(this.y < 300){
+            if(this.y < 335){
                 this.y += 10;
+                this.element.classList.remove("jump");
+                this.element.classList.add("fall");
             } else {
+                this.element.classList.remove("fall");
                 /* ----- CORECCION DE NICO ----- */
                 clearInterval(this.fallInterval);
                 this.fallInterval = null;
                 this.falling = false;
                 this.jumpingAir = true; 
-                this.y = 300;
+                this.y = 335;
                 this.actualizarPosicion();
+                
                 return;
                 /* ----------------------------- */
             }
