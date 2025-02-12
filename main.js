@@ -1,11 +1,18 @@
 // Class
 
 class Game {
+
     constructor(){
         this.container = document.getElementById("game-container");
         this.character = null;
         this.coins = [];
         this.score = 0
+        this.backgroundMusic = new Audio("./src/sounds/bg-music-michiverse.mp3");
+        this.backgroundMusic.loop = true;
+        this.backgroundMusic.volume = 0.4;
+        this.backgroundMusic.play();
+        this.musicPlaying = true;
+        this.btnMusic = document.getElementById("btnMusic");
         this.buildScenario();
         this.addEvents();
     }
@@ -23,12 +30,14 @@ class Game {
     addEvents(){
         window.addEventListener("keydown", (e) => this.character.move(e));
         this.checkCollisions();
+        //Agrega el evento de música
+        this.btnMusic.addEventListener("click",()=>this.toggleMusic());
     }
 
     checkCollisions(){
         setInterval(() => {
             this.coins.forEach((coin, index) => {
-                if (this.character.collisionWhit(coin)) {
+                if (this.character.collisionWith(coin)) {
                     this.container.removeChild(coin.element);
                     this.coins.splice(index,1)
                 }
@@ -36,6 +45,23 @@ class Game {
         },
             100);
     }
+    /*
+    Pausa o inicia la música de fondo según el el valor de this.musicPlaying,
+    lo cambia a su valor contrario y cambia el icono del speaker. ------ AMCA
+    */
+    toggleMusic(){
+        if (this.musicPlaying){
+            this.backgroundMusic.pause();
+            this.btnMusic.innerHTML = '<i class="bi bi-volume-mute-fill"></i>'
+        } else {
+            this.backgroundMusic.play();
+            this.btnMusic.innerHTML = '<i class="bi bi-volume-up-fill"></i>'
+        }
+        this.musicPlaying = !this.musicPlaying;
+    }
+    /*
+    */
+
 }
 
 class Character {
@@ -138,7 +164,7 @@ class Character {
                 this.falling = false;
                 this.jumpingAir = true; 
                 this.y = 335;
-                this.actualizarPosicion();
+                this.actualizarPosicion;
                 return;
                 /* ----------------------------- */
             }
@@ -152,7 +178,7 @@ class Character {
         this.element.style.top = `${this.y}px`
     }
 
-    collisionWhit(obj){
+    collisionWith(obj){
         return (
             this.x < obj.x + obj.width &&
             this.x + this.width > obj.x &&
@@ -183,10 +209,9 @@ class Coin {
 function startGame(){
     const menuStart = document.getElementById("menu-start");
     menuStart.style.display = "none";
-    const music = document.getElementById("gameMusic");
     const game = new Game();
-    music.play();
     console.log(game);
+
 }
 
 window.startGame = startGame;

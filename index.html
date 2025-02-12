@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Aventuras POO</title>
+    <title>Michiverso</title>
     <link rel="stylesheet" href="style.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -17,10 +17,7 @@
     />
   </head>
   <body>
-    <h1>Netmichi</h1>
-    <audio id="gameMusic" loop>
-      <source src="./src/sounds/bg-music-michiverse.mp3" type="audio/mpeg">
-    </audio>
+    <h1>Michiverso</h1>
     <div id="game-container">
       <div id="menu-start">
         <p>
@@ -38,6 +35,7 @@
         </p>
         <button onclick="startGame()"><i class="bi bi-play-fill"></i> Play</button>
       </div>
+      <button id="btnMusic"><i class="bi bi-volume-up-fill"></i></button>
     </div>
     <script type="module" src="main.js"></script>
   </body>
