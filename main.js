@@ -8,20 +8,24 @@ class Game {
         this.ravens = [];
         this.floppys = [];
         this.score = 0
+        this.maxScore = 5;
         this.backgroundMusic = new Audio("./src/sounds/bg-music-michiverse.mp3");
         this.backgroundMusic.loop = true;
         this.backgroundMusic.volume = 0.4;
         this.backgroundMusic.play();
         this.musicPlaying = true;
         this.btnMusic = document.getElementById("btnMusic");
+        this.scoreInterface = document.getElementById("scoreInterface");
         this.buildScenario();
         this.addEvents();
+        this.checkVictory();
+        this.viewScore();
     }
 
     buildScenario(){
         this.character = new Character();
         this.container.appendChild(this.character.element);
-        for (let index = 0; index < 5; index++) {
+        for (let index = 0; index < this.maxScore; index++) {
             const floppy = new Floppy();
             this.floppys.push(floppy);
             this.container.appendChild(floppy.element);
@@ -45,10 +49,12 @@ class Game {
                     floppy.sndColl.play();
                     this.container.removeChild(floppy.element);
                     this.floppys.splice(index,1)
+                    this.score++
+                    console.log(this.score);
+                    this.viewScore();
                 }
             })
-        },
-            100);
+        },100);
     }
     /*
     Pausa o inicia la música de fondo según el el valor de this.musicPlaying,
@@ -64,8 +70,20 @@ class Game {
         }
         this.musicPlaying = !this.musicPlaying;
     }
-    /*
-    */
+
+    /* Checkea si se cumple la condición para alcanzar la victoria --- AMCA */
+    checkVictory(){
+        setInterval(() => {
+        if(this.floppys.length === 0){
+            console.log("Victoria");
+        }
+        },100);
+    }
+
+    //Método que muestra por pantalla nuestra puntuación --- AMCA
+    viewScore(){
+        this.scoreInterface.innerHTML = `${this.score} / ${this.maxScore} <i class='bi bi-floppy2-fill'></i>`;
+    }
 
 }
 
@@ -242,7 +260,8 @@ class Raven{
             } else {
                 this.element.classList.add("right");
                 this.x += this.speed;
-                if (this.x >= 720) this.moveLeft = true; // Cambia dirección
+                if (this.x >= 720) this.moveLeft = true; // Cambia d
+                // irección
             }
             this.updPosition();
         }, 40);

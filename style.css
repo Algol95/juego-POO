@@ -21,6 +21,16 @@
 }
 
 /* ---------------------- INTERFACE - AMCA -----------------------*/
+
+.interface {
+  display: flex;
+  height: 50px;
+  overflow: hidden;
+  align-content: center;
+  align-items: center;
+  margin-left: 20px;
+}
+
 button {
     border: none;
     margin: 1rem;
