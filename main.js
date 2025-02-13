@@ -216,7 +216,7 @@ class Floppy {
 
 class Raven{
     constructor(){
-        this.x = 720;
+        this.x = Math.random() * 700 + 20;
         this.y = 150;
         this.width = 76;
         this.height = 52;
@@ -235,15 +235,14 @@ class Raven{
 
     move(){
         setInterval(() => {
-            if (this.moveLeft && this.x != 0){
+            if (this.moveLeft) {
                 this.x -= this.speed;
                 this.element.classList.remove("right");
-            } else if (this.x != 720){
-                this.x += this.speed;
-                this.moveLeft = false;
-                this.element.classList.add("right")
+                if (this.x <= 0) this.moveLeft = false; // Cambia dirección
             } else {
-                this.moveLeft = true;
+                this.element.classList.add("right");
+                this.x += this.speed;
+                if (this.x >= 720) this.moveLeft = true; // Cambia dirección
             }
             this.updPosition();
         }, 40);
