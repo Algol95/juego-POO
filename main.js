@@ -13,8 +13,8 @@ class Game {
         this.backgroundMusic.loop = true;
         this.backgroundMusic.volume = 0.4;
         this.backgroundMusic.play();
-        this.victoryMusic = new Audio("./src/sounds/win.mp3")
-        this.victoryMusic.loop = false;
+        this.victoryMusic = new Audio("./src/sounds/win.mp3");
+        this.endMusic = new Audio("./src/sounds/end.mp3");
         this.musicPlaying = true;
         this.btnMusic = document.getElementById("btnMusic");
         this.scoreInterface = document.getElementById("scoreInterface");
@@ -25,6 +25,7 @@ class Game {
         this.addEvents();
         this.checkVictory();
         this.viewScore();
+        
     }
 
     buildScenario(){
@@ -55,10 +56,12 @@ class Game {
                     this.container.removeChild(floppy.element);
                     this.floppys.splice(index,1)
                     this.score++
-                    console.log(this.score);
                     this.viewScore();
                 }
             })
+            this.ravens.forEach((raven) => {
+                if(this.character.collisionWith(raven)) this.endGame();
+            });
         },100);
     }
     /*
@@ -91,6 +94,17 @@ class Game {
             clearInterval(this.victoryInterval);
         }
         },100);
+    }
+
+    endGame(){
+        const menuEnd = document.getElementById("menu-end");
+        menuEnd.style.display = "block";
+        window.removeEventListener("keydown",this.keydownMove);
+        this.backgroundMusic.pause();
+        this.endMusic.play();
+        this.ravens.forEach(raven => {
+            clearInterval(raven.moveInterval);
+        })
     }
 
     //Método que muestra por pantalla nuestra puntuación --- AMCA
@@ -249,8 +263,8 @@ class Raven{
     constructor(){ 
         this.x = Math.random() * 700 + 20;
         this.y = 150;
-        this.width = 76;
-        this.height = 52;
+        this.width = 56;
+        this.height = 32;
         this.speed = 10;
         this.moveLeft = true;
         this.moveInterval = null;

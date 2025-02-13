@@ -11,12 +11,21 @@
   }
 }
 
-@keyframes spriteChange {
+@keyframes spriteCharacter {
   0% {
     background-position: 0 0;
   }
   100% {
     background-position: -152px 0;
+  }
+}
+
+@keyframes spriteRaven {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: -112px 0;
   }
 }
 
@@ -118,6 +127,10 @@ body h1 {
 #menu-victory{
   display: none;
 }
+
+#menu-end{
+  display: none;
+}
 /* ------------------ GAME ELEMENTS ---------------------*/
 #btnMusic {
   padding: 10px 12px;
@@ -128,7 +141,7 @@ body h1 {
   position: absolute;
   width: 76px;
   height: 71px;
-  animation: spriteChange 0.5s infinite steps(2);
+  animation: spriteCharacter 0.5s infinite steps(2);
   background-repeat: no-repeat;
   background-image: url(./src/img/sprites/spriteChar.png);
   background-size: 152px 71px;
@@ -167,10 +180,10 @@ body h1 {
 
 .raven {
   position: absolute;
-  width: 76px;
-  height: 52px;
-  animation: spriteChange 0.5s infinite steps(2);
+  width: 56px;
+  height: 32px;
+  animation: spriteRaven 0.5s infinite steps(2);
   background-image: url(./src/img/sprites/spriteRaven.png);
   background-repeat: no-repeat;
-  background-size: 152px 52px;
+  background-size: 112px 32px;
 }
