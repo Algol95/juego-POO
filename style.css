@@ -11,7 +11,7 @@
   }
 }
 
-@keyframes spriteCharacter {
+@keyframes spriteChange {
   0% {
     background-position: 0 0;
   }
@@ -117,7 +117,7 @@ body {
     position: absolute;
     width: 76px;
     height: 71px;
-    animation: spriteCharacter 0.5s infinite steps(2);
+    animation: spriteChange 0.5s infinite steps(2);
     background-repeat: no-repeat;
     background-image: url(./src/img/sprites/spriteChar.png);
     background-size: 152px 71px;
@@ -129,7 +129,6 @@ body {
 
   .jump, .fall{
     animation: none;
-    
   }
 
   .jump {
@@ -142,7 +141,7 @@ body {
     background-size: 80%;
   }
   
-  .coin {
+  .floppy {
     position: absolute;
     width: 30px;
     height: 30px;
@@ -152,4 +151,14 @@ body {
     border-radius: 5%;
     box-shadow: 0px -0px 20px 5px #ff6ce7;
     animation: breath 2.5s infinite ease-in-out;
+  }
+
+  .raven{
+    position: absolute;
+    width: 76px;
+    height: 52px;
+    animation: spriteChange 0.5s infinite steps(2);
+    background-image: url(./src/img/sprites/spriteRaven.png);
+    background-repeat: no-repeat;
+    background-size: 152px 52px;
   }

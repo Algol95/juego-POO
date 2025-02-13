@@ -5,7 +5,8 @@ class Game {
     constructor(){
         this.container = document.getElementById("game-container");
         this.character = null;
-        this.coins = [];
+        this.ravens = [];
+        this.floppys = [];
         this.score = 0
         this.backgroundMusic = new Audio("./src/sounds/bg-music-michiverse.mp3");
         this.backgroundMusic.loop = true;
@@ -21,10 +22,13 @@ class Game {
         this.character = new Character();
         this.container.appendChild(this.character.element);
         for (let index = 0; index < 5; index++) {
-            const coin = new Coin();
-            this.coins.push(coin);
-            this.container.appendChild(coin.element);
+            const floppy = new Floppy();
+            this.floppys.push(floppy);
+            this.container.appendChild(floppy.element);
         }
+        const raven = new Raven();
+        this.ravens.push(raven);
+        this.container.appendChild(raven.element);
     }
 
     addEvents(){
@@ -36,10 +40,11 @@ class Game {
 
     checkCollisions(){
         setInterval(() => {
-            this.coins.forEach((coin, index) => {
-                if (this.character.collisionWith(coin)) {
-                    this.container.removeChild(coin.element);
-                    this.coins.splice(index,1)
+            this.floppys.forEach((floppy, index) => {
+                if (this.character.collisionWith(floppy)) {
+                    floppy.sndColl.play();
+                    this.container.removeChild(floppy.element);
+                    this.floppys.splice(index,1)
                 }
             })
         },
@@ -78,6 +83,7 @@ class Character {
         this.falling = false; // ARREGLO NICO
         this.element = document.createElement("div");
         this.element.classList.add("character");
+        this.element.classList.add("right");
         this.updPosition();
     }
 
@@ -189,20 +195,58 @@ class Character {
 
 }
 
-class Coin {
+class Floppy {
     constructor(){
         this.x = Math.random() * 700 + 50;
         this.y = Math.random() * 250 + 50;
         this.width = 30;
         this.height = 30;
+        this.sndColl = new Audio ("./src/sounds/sndCollect.mp3")
+        this.sndColl.volume = 0.5;
         this.element = document.createElement("div");
-        this.element.classList.add("coin");
+        this.element.classList.add("floppy");
         this.updPosition();
     }
 
     updPosition(){
         this.element.style.left = `${this.x}px`
         this.element.style.top = `${this.y}px`
+    }
+}
+
+class Raven{
+    constructor(){
+        this.x = 720;
+        this.y = 150;
+        this.width = 76;
+        this.height = 52;
+        this.speed = 10;
+        this.moveLeft = true;
+        this.element = document.createElement("div");
+        this.element.classList.add("raven");
+        this.updPosition();
+        this.move();
+    }
+
+    updPosition(){
+        this.element.style.left = `${this.x}px`
+        this.element.style.top = `${this.y}px`
+    }
+
+    move(){
+        setInterval(() => {
+            if (this.moveLeft && this.x != 0){
+                this.x -= this.speed;
+                this.element.classList.remove("right");
+            } else if (this.x != 720){
+                this.x += this.speed;
+                this.moveLeft = false;
+                this.element.classList.add("right")
+            } else {
+                this.moveLeft = true;
+            }
+            this.updPosition();
+        }, 40);
     }
 }
 
