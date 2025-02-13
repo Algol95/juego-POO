@@ -2,7 +2,7 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0 user-scalable=no" />
     <title>Michiverso</title>
     <link rel="stylesheet" href="style.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -17,7 +17,12 @@
     />
   </head>
   <body>
-    <div id="game-container">
+    <div class="landscape-warning">
+      <h1><i class="bi bi-phone"></i><i class="bi bi-phone-landscape-fill"></i></h1>
+      <p>Para disfrutar de este juego, gira tu dispositivo a modo horizontal (landscape) y toca cualquier lado de la app para ponerlo en pantalla completa</p>
+      <h1><i class="bi bi-hand-index"></i></h1>
+    </div>
+    <section id="game-container">
       <div class="menu" id="menu-start">
         <h1>Michiverso</h1>
         <p>
@@ -56,7 +61,10 @@
         <div id="scoreInterface"></div>
         <button id="btnMusic"><i class="bi bi-volume-up-fill"></i></button>
       </div>
-    </div>
+      <div class="interface-bot"><i class="bi bi-arrow-left-circle interface-bot-bi" id="touchLeft"></i>
+        <i class="bi bi-arrow-up-circle interface-bot-bi" id="touchTop"></i>
+        <i class="bi bi-arrow-right-circle interface-bot-bi" id="touchRight"></i></div>
+    </section>
     <script type="module" src="main.js"></script>
   </body>
 </html>

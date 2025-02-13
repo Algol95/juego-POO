@@ -38,6 +38,10 @@ class Game {
         this.collisionInterval = null;
         this.victoryInterval = null;
         this.keydownMove = (e) => this.character.move(e);
+        this.touchLeft = document.getElementById("touchLeft");
+        this.touchRight = document.getElementById("touchRight");
+        this.touchTop = document.getElementById("touchTop");
+        this.touchMoveInterval = null;
         this.buildScenario();
         this.addEvents();
         this.checkVictory();
@@ -60,12 +64,38 @@ class Game {
     }
 
     
-    /** Agrega los eventos del juego */
+    /** Agrega los eventos del juego: pulsación de teclas, pantalla táctil, botón de música, colisiones. */
     addEvents(){
         window.addEventListener("keydown", this.keydownMove);
+
+        this.touchLeft.addEventListener("touchstart", () => this.startMove("touchLeft"));
+        this.touchRight.addEventListener("touchstart", () => this.startMove("touchRight"));
+        this.touchTop.addEventListener("touchstart", () => this.startMove("touchTop"));
+
+        this.touchLeft.addEventListener("touchend", this.stopMove.bind(this));
+        this.touchRight.addEventListener("touchend", this.stopMove.bind(this));
+        this.touchTop.addEventListener("touchend", this.stopMove.bind(this));
+
         this.checkCollisions();
-        //Agrega el evento de música
+
         this.btnMusic.addEventListener("click",()=>this.toggleMusic());
+    }
+
+    
+    /**
+     * Método que crea un intervalo para el movimiento del Character
+     * @param {string} direction String con la que se definirá el target.id del evento que pasamos a move() 
+     */
+    startMove(direction) {
+        this.touchMoveInterval = setInterval(() => {
+            this.character.move({ target: { id: direction } });
+        }, 60);
+    }
+
+    
+    /** Limpia el el intervalo de touchMoveInterval*/
+    stopMove() {
+        clearInterval(this.touchMoveInterval);
     }
 
     
@@ -204,14 +234,15 @@ class Character extends Sprite {
      * @constructor
      */
     constructor(){
-        super(50,335,70,70,10,"character")
+        super(50,300,70,70,20,"character")
         this.jumpingAir = true; 
         this.jumpInterval = null;
         this.fallInterval = null;
         this.jumping = false;
         this.falling = false;
         this.element.classList.add("right");
-
+        this.sndJump = new Audio("./src/sounds/jump.mp3")
+        this.sndJump.volume = 0.5;
     }
 
     /**
@@ -219,18 +250,17 @@ class Character extends Sprite {
      * @param {*} event - Evento que condiciona el movimiento del Sprite.
      */
     move(event){
-        if(event.key === "ArrowRight" && this.x != 720){
+        if((event.key === "ArrowRight" && this.x != 720)||(event.target.id == "touchRight" && this.x != 720)){
             this.x += this.speed;
             this.element.classList.add("right")
-        } else if (event.key === "ArrowLeft" && this.x != 0){
+        } else if ((event.key === "ArrowLeft" && this.x != 0)||(event.target.id == "touchLeft" && this.x != 0)){
             this.x -= this.speed;
             this.element.classList.remove("right")
-        }   else if(event.key === "ArrowUp"){
+        }   else if(event.key === "ArrowUp" || event.target.id == "touchTop"){
             this.jump();
         }
         this.updPosition();
     }
-
     
     /** Método que ejecuta el salto del Character
      * @modified Aplicada la correción de Nico para desbugear el bucle salto-caída en el aire.
@@ -252,6 +282,7 @@ class Character extends Sprite {
             this.jumpInterval = setInterval(() => {
                 if (this.y > maxHeight) {
                     this.y -= 10;
+                    this.sndJump.play();
                 } else {
                     clearInterval(this.jumpInterval);
                     this.jumpInterval = null;
@@ -270,7 +301,7 @@ class Character extends Sprite {
     fall(){
         this.falling = true;
         this.fallInterval = setInterval(() => {
-            if(this.y < 335){
+            if(this.y < 300){
                 this.y += 10;
                 this.element.classList.remove("jump");
                 this.element.classList.add("fall");
@@ -280,7 +311,7 @@ class Character extends Sprite {
                 this.fallInterval = null;
                 this.falling = false;
                 this.jumpingAir = true; 
-                this.y = 335;
+                this.y = 300;
                 this.actualizarPosicion;
                 return;
             }
@@ -355,6 +386,10 @@ class Raven extends Sprite{
 /** Fúnción que comienza el juego. */
 function startGame(){
     const menuStart = document.getElementById("menu-start");
+    const interfaceBot = document.getElementsByClassName("interface-bot");
+    if (isMobile()){
+        interfaceBot[0].style.display = "block"
+    }
     menuStart.style.display = "none";
     const game = new Game(3);
 }
@@ -365,5 +400,37 @@ function restart(){
     location.reload();
 }
 
+
+/** Función que habilita pantalla completa */
+function goFullscreen() {
+    let gameContainer = document.getElementById("game-container");
+    if (gameContainer.requestFullscreen) {
+      gameContainer.requestFullscreen();
+    } else if (gameContainer.mozRequestFullScreen) { 
+      gameContainer.mozRequestFullScreen();
+    } else if (gameContainer.webkitRequestFullscreen) { 
+      gameContainer.webkitRequestFullscreen();
+    } else if (gameContainer.msRequestFullscreen) { 
+      gameContainer.msRequestFullscreen();
+    }
+  }
+
+  
+  /**
+   * Función que devuelve un booleano si detecta que esta navegando en una tablet o movil
+   * @returns {boolean} True o False : Movil/Tablet
+   */
+  function isMobile() {
+    return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  }
+  /** Habilita la pantalla completa en función del parametro.
+   * @param {boolean} isMobile
+   */
+  if (isMobile()) {
+    document.addEventListener("click", goFullscreen, { once: true });
+    document.addEventListener("touchstart", goFullscreen, { once: true });
+  }
+
+window.isMobile = isMobile;
 window.restart = restart;
 window.startGame = startGame;
