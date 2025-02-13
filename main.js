@@ -2,20 +2,25 @@
 
 class Game {
 
-    constructor(){
+    constructor(maxScore){
         this.container = document.getElementById("game-container");
         this.character = null;
         this.ravens = [];
         this.floppys = [];
         this.score = 0
-        this.maxScore = 5;
+        this.maxScore = maxScore;
         this.backgroundMusic = new Audio("./src/sounds/bg-music-michiverse.mp3");
         this.backgroundMusic.loop = true;
         this.backgroundMusic.volume = 0.4;
         this.backgroundMusic.play();
+        this.victoryMusic = new Audio("./src/sounds/win.mp3")
+        this.victoryMusic.loop = false;
         this.musicPlaying = true;
         this.btnMusic = document.getElementById("btnMusic");
         this.scoreInterface = document.getElementById("scoreInterface");
+        this.collisionInterval = null;
+        this.victoryInterval = null;
+        this.keydownMove = (e) => this.character.move(e);
         this.buildScenario();
         this.addEvents();
         this.checkVictory();
@@ -36,14 +41,14 @@ class Game {
     }
 
     addEvents(){
-        window.addEventListener("keydown", (e) => this.character.move(e));
+        window.addEventListener("keydown", this.keydownMove);
         this.checkCollisions();
         //Agrega el evento de música
         this.btnMusic.addEventListener("click",()=>this.toggleMusic());
     }
 
     checkCollisions(){
-        setInterval(() => {
+        this.collisionInterval = setInterval(() => {
             this.floppys.forEach((floppy, index) => {
                 if (this.character.collisionWith(floppy)) {
                     floppy.sndColl.play();
@@ -71,11 +76,19 @@ class Game {
         this.musicPlaying = !this.musicPlaying;
     }
 
-    /* Checkea si se cumple la condición para alcanzar la victoria --- AMCA */
+    /* Checkea si se cumple la condición para alcanzar la victoria, remueve los intervalos y eventos para que se para el juego --- AMCA */
     checkVictory(){
-        setInterval(() => {
+        this.victoryInterval = setInterval(() => {
         if(this.floppys.length === 0){
-            console.log("Victoria");
+            const menuVictory = document.getElementById("menu-victory");
+            window.removeEventListener("keydown",this.keydownMove);
+            this.backgroundMusic.pause();
+            this.victoryMusic.play();
+            menuVictory.style.display = "block";
+            this.ravens.forEach(raven => {
+                clearInterval(raven.moveInterval);
+            });
+            clearInterval(this.victoryInterval);
         }
         },100);
     }
@@ -233,13 +246,14 @@ class Floppy {
 }
 
 class Raven{
-    constructor(){
+    constructor(){ 
         this.x = Math.random() * 700 + 20;
         this.y = 150;
         this.width = 76;
         this.height = 52;
         this.speed = 10;
         this.moveLeft = true;
+        this.moveInterval = null;
         this.element = document.createElement("div");
         this.element.classList.add("raven");
         this.updPosition();
@@ -252,7 +266,7 @@ class Raven{
     }
 
     move(){
-        setInterval(() => {
+       this.moveInterval = setInterval(() => {
             if (this.moveLeft) {
                 this.x -= this.speed;
                 this.element.classList.remove("right");
@@ -271,9 +285,12 @@ class Raven{
 function startGame(){
     const menuStart = document.getElementById("menu-start");
     menuStart.style.display = "none";
-    const game = new Game();
-    console.log(game);
-
+    const game = new Game(3);
 }
 
+function restart(){
+    location.reload();
+}
+
+window.restart = restart;
 window.startGame = startGame;

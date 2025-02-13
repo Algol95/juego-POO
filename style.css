@@ -1,12 +1,12 @@
 /*-------------------- ANIMATIONS - AMCA --------------------*/
 @keyframes breath {
   0% {
-      transform: scale(1);
+    transform: scale(1);
   }
-  50%{
-    transform: scale(.8);
+  50% {
+    transform: scale(0.8);
   }
-  100%{
+  100% {
     transform: scale(1);
   }
 }
@@ -15,7 +15,7 @@
   0% {
     background-position: 0 0;
   }
-  100%{
+  100% {
     background-position: -152px 0;
   }
 }
@@ -32,22 +32,22 @@
 }
 
 button {
-    border: none;
-    margin: 1rem;
-    padding: .5rem 1.5rem;
-    border-radius: 2rem;
-    overflow: visible;
-    background: transparent;
-    color: inherit;
-    font: inherit;
-    line-height: normal;
-    justify-content: center;
-    text-align: center;
-    text-transform: uppercase;
-    -webkit-font-smoothing: inherit;
-    -moz-osx-font-smoothing: inherit;  
-    transition: .1s;
-    cursor: pointer;
+  border: none;
+  margin: 1rem;
+  padding: 0.5rem 1.5rem;
+  border-radius: 2rem;
+  overflow: visible;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: normal;
+  justify-content: center;
+  text-align: center;
+  text-transform: uppercase;
+  -webkit-font-smoothing: inherit;
+  -moz-osx-font-smoothing: inherit;
+  transition: 0.1s;
+  cursor: pointer;
 }
 
 button:hover {
@@ -61,114 +61,116 @@ button:active {
 }
 
 body {
-    margin: 0;
-    font-family: "Audiowide", serif;
-    overflow: hidden;
-    background-image: url(./src/img/bg-body.jpg);
-    background-position: center;
-    background-size: cover;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    flex-direction: column;
-    color: aliceblue;
-  }
-  
-  body h1 {
-    color: #742362;
-    text-shadow:
-    0 0 5px #ff00d4, 
-        0 0 10px #ff00d4, 
-        0 0 20px #ff00d4, 
-        0 0 40px #ff00d4;
-    text-transform: uppercase;
-  }
+  margin: 0;
+  font-family: "Audiowide", serif;
+  overflow: hidden;
+  background-image: url(./src/img/bg-body.jpg);
+  background-position: center;
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  flex-direction: column;
+  color: aliceblue;
+}
 
-    #game-container {
-    position: relative;
-    width: 800px;
-    height: 400px;
-    margin: 20px auto;
-    border: 2px solid #b464ff;
-    background-image: url(./src/img/bg-game.jpg);
-    background-position: bottom;
-    background-size: cover;
-    overflow: hidden;
-    box-shadow: 0 0 10px 2px rgba(119, 0, 255, 0.8);
-    border-radius: 30px;
-    }
+body h1 {
+  color: aliceblue;
+  text-shadow: 0 0 5px #ff00d4, 0 0 10px #ff00d4, 0 0 20px #ff00d4,
+    0 0 40px #ff00d4;
+  text-transform: uppercase;
+}
 
-    #menu-start{
-      width: 700px;
-      height: 300px;
-      background-color: rgba(60, 22, 102, 0.726);
-      margin: 50px auto;
-      text-align: center;
-      align-content: center;
-      border-radius: 30px;
-      
-      backdrop-filter: blur(3px);
-      border: 2px solid #dd6ec5;
-      box-shadow: 0 0 10px 2px rgba(119, 0, 255, 0.8);
-    }
+#game-container {
+  position: relative;
+  width: 800px;
+  height: 400px;
+  margin: 20px auto;
+  border: 2px solid #b464ff;
+  background-image: url(./src/img/bg-game.jpg);
+  background-position: bottom;
+  background-size: cover;
+  overflow: hidden;
+  box-shadow: 0 0 10px 2px rgba(119, 0, 255, 0.8);
+  border-radius: 30px;
+}
 
-  #menu-start .bi {
-    font-size: 20px;
-  }
+.menu {
+  width: 700px;
+  height: 300px;
+  background-color: rgba(60, 22, 102, 0.726);
+  margin: 50px auto;
+  text-align: center;
+  align-content: center;
+  border-radius: 30px;
+  backdrop-filter: blur(3px);
+  border: 2px solid #dd6ec5;
+  box-shadow: 0 0 10px 2px rgba(119, 0, 255, 0.8);
+  position: relative;
+  z-index: 10;
+}
 
-  /* ------------------ GAME ELEMENTS ---------------------*/
-  #btnMusic {
-    padding: 10px 12px;
-    position: relative;
-  }
+.menu .i-btn {
+  font-size: 20px;
+}
 
-  .character {
-    position: absolute;
-    width: 76px;
-    height: 71px;
-    animation: spriteChange 0.5s infinite steps(2);
-    background-repeat: no-repeat;
-    background-image: url(./src/img/sprites/spriteChar.png);
-    background-size: 152px 71px;
-  }
+#menu-victory{
+  display: none;
+}
+/* ------------------ GAME ELEMENTS ---------------------*/
+#btnMusic {
+  padding: 10px 12px;
+  position: relative;
+}
 
-  .right {
-    transform: scaleX(-1);
-  }
+.character {
+  position: absolute;
+  width: 76px;
+  height: 71px;
+  animation: spriteChange 0.5s infinite steps(2);
+  background-repeat: no-repeat;
+  background-image: url(./src/img/sprites/spriteChar.png);
+  background-size: 152px 71px;
+}
 
-  .jump, .fall{
-    animation: none;
-  }
+.right {
+  transform: scaleX(-1);
+}
 
-  .jump {
-    background-image: url(./src/img/sprites/charjump.png);
-    background-size: auto
-  }
+.jump,
+.fall {
+  animation: none;
+}
 
-  .fall {
-    background-image: url(./src/img/sprites/charfall.png);
-    background-size: 80%;
-  }
-  
-  .floppy {
-    position: absolute;
-    width: 30px;
-    height: 30px;
-    background-image: url(./src/img/sprites/floppy.png);
-    background-size: 110%;
-    background-position: center;
-    border-radius: 5%;
-    box-shadow: 0px -0px 20px 5px #ff6ce7;
-    animation: breath 2.5s infinite ease-in-out;
-  }
+.jump {
+  background-image: url(./src/img/sprites/charjump.png);
+  background-size: auto;
+}
 
-  .raven{
-    position: absolute;
-    width: 76px;
-    height: 52px;
-    animation: spriteChange 0.5s infinite steps(2);
-    background-image: url(./src/img/sprites/spriteRaven.png);
-    background-repeat: no-repeat;
-    background-size: 152px 52px;
-  }
+.fall {
+  background-image: url(./src/img/sprites/charfall.png);
+  background-size: 80%;
+}
+
+.floppy {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background-image: url(./src/img/sprites/floppy.png);
+  background-size: 110%;
+  background-position: center;
+  border-radius: 5%;
+  box-shadow: 0px -0px 20px 5px #ff6ce7;
+  animation: breath 2.5s infinite ease-in-out;
+}
+
+.raven {
+  position: absolute;
+  width: 76px;
+  height: 52px;
+  animation: spriteChange 0.5s infinite steps(2);
+  background-image: url(./src/img/sprites/spriteRaven.png);
+  background-repeat: no-repeat;
+  background-size: 152px 52px;
+}
