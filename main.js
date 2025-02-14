@@ -19,12 +19,12 @@ class Game {
      * @constructor
      * @param {number} maxScore Parametro que establece la cantidad de objetos de tipo Floppy del juego y la cantidad máxima coleccionable.
      */
-    constructor(maxScore){
+    constructor(maxScore) {
         this.container = document.getElementById("game-container");
         this.character = null;
         this.ravens = [];
         this.floppys = [];
-        this.score = 0
+        this.score = 0;
         this.maxScore = maxScore;
         this.backgroundMusic = new Audio("./src/sounds/bg-music-michiverse.mp3");
         this.backgroundMusic.loop = true;
@@ -38,131 +38,103 @@ class Game {
         this.collisionInterval = null;
         this.victoryInterval = null;
         this.keydownMove = (e) => this.character.move(e);
-        this.touchLeft = document.getElementById("touchLeft");
-        this.touchRight = document.getElementById("touchRight");
-        this.touchTop = document.getElementById("touchTop");
-        this.touchMoveInterval = null;
+
         this.buildScenario();
         this.addEvents();
         this.checkVictory();
         this.viewScore();
-        
     }
 
     /** Construye el escenario del juego */
-    buildScenario(){
+    buildScenario() {
         this.character = new Character();
         this.container.appendChild(this.character.element);
+        this.character.addTouchControls(); // Activa los controles táctiles dentro de Character
+
         for (let index = 0; index < this.maxScore; index++) {
             const floppy = new Floppy();
             this.floppys.push(floppy);
             this.container.appendChild(floppy.element);
         }
+
         const raven = new Raven();
         this.ravens.push(raven);
         this.container.appendChild(raven.element);
     }
 
-    
-    /** Agrega los eventos del juego: pulsación de teclas, pantalla táctil, botón de música, colisiones. */
-    addEvents(){
+    /** Agrega los eventos del juego */
+    addEvents() {
         window.addEventListener("keydown", this.keydownMove);
-
-        this.touchLeft.addEventListener("touchstart", () => this.startMove("touchLeft"));
-        this.touchRight.addEventListener("touchstart", () => this.startMove("touchRight"));
-        this.touchTop.addEventListener("touchstart", () => this.startMove("touchTop"));
-
-        this.touchLeft.addEventListener("touchend", this.stopMove.bind(this));
-        this.touchRight.addEventListener("touchend", this.stopMove.bind(this));
-        this.touchTop.addEventListener("touchend", this.stopMove.bind(this));
-
         this.checkCollisions();
-
-        this.btnMusic.addEventListener("click",()=>this.toggleMusic());
+        this.btnMusic.addEventListener("click", () => this.toggleMusic());
     }
 
-    
-    /**
-     * Método que crea un intervalo para el movimiento del Character
-     * @param {string} direction String con la que se definirá el target.id del evento que pasamos a move() 
-     */
-    startMove(direction) {
-        this.touchMoveInterval = setInterval(() => {
-            this.character.move({ target: { id: direction } });
-        }, 60);
-    }
-
-    
-    /** Limpia el el intervalo de touchMoveInterval*/
-    stopMove() {
-        clearInterval(this.touchMoveInterval);
-    }
-
-    
     /** Comprueba las colisiones entre objetos del juego */
-    checkCollisions(){
+    checkCollisions() {
         this.collisionInterval = setInterval(() => {
             this.floppys.forEach((floppy, index) => {
                 if (this.character.collisionWith(floppy)) {
                     floppy.sndColl.play();
                     this.container.removeChild(floppy.element);
-                    this.floppys.splice(index,1)
-                    this.score++
+                    this.floppys.splice(index, 1);
+                    this.score++;
                     this.viewScore();
                 }
-            })
-            this.ravens.forEach((raven) => {
-                if(this.character.collisionWith(raven)) this.endGame();
             });
-        },100);
+
+            this.ravens.forEach((raven) => {
+                if (this.character.collisionWith(raven)) this.endGame();
+            });
+        }, 100);
     }
-    
-    /** Pausa e inicializa la música de juego, segun si estaba sonando previamente o no. */
-    toggleMusic(){
-        if (this.musicPlaying){
+
+    /** Pausa o inicia la música del juego */
+    toggleMusic() {
+        if (this.musicPlaying) {
             this.backgroundMusic.pause();
-            this.btnMusic.innerHTML = '<i class="bi bi-volume-mute-fill"></i>'
+            this.btnMusic.innerHTML = '<i class="bi bi-volume-mute-fill"></i>';
         } else {
             this.backgroundMusic.play();
-            this.btnMusic.innerHTML = '<i class="bi bi-volume-up-fill"></i>'
+            this.btnMusic.innerHTML = '<i class="bi bi-volume-up-fill"></i>';
         }
         this.musicPlaying = !this.musicPlaying;
     }
 
-    
-    /** Comprueba si se cumple la condicion de Victoria */
-    checkVictory(){
+    /** Comprueba si se cumple la condición de victoria */
+    checkVictory() {
         this.victoryInterval = setInterval(() => {
-        if(this.floppys.length === 0){
-            const menuVictory = document.getElementById("menu-victory");
-            window.removeEventListener("keydown",this.keydownMove);
-            this.backgroundMusic.pause();
-            this.victoryMusic.play();
-            menuVictory.style.display = "block";
-            this.ravens.forEach(raven => {
-                clearInterval(raven.moveInterval);
-            });
-            clearInterval(this.victoryInterval);
-        }
-        },100);
+            if (this.floppys.length === 0) {
+                const menuVictory = document.getElementById("menu-victory");
+                window.removeEventListener("keydown", this.keydownMove);
+                this.backgroundMusic.pause();
+                this.victoryMusic.play();
+                menuVictory.style.display = "block";
+
+                this.ravens.forEach(raven => {
+                    clearInterval(raven.moveInterval);
+                    
+                });
+                clearInterval(this.collisionInterval);
+                clearInterval(this.victoryInterval);
+            }
+        }, 100);
     }
 
-    
     /** Despliega el menú de derrota */
-    endGame(){
+    endGame() {
         const menuEnd = document.getElementById("menu-end");
         menuEnd.style.display = "block";
-        window.removeEventListener("keydown",this.keydownMove);
+        window.removeEventListener("keydown", this.keydownMove);
         this.backgroundMusic.pause();
         this.endMusic.play();
+
         this.ravens.forEach(raven => {
             clearInterval(raven.moveInterval);
-        })
+        });
     }
 
-    
     /** Muestra por pantalla la puntuación actual */
-    viewScore(){
+    viewScore() {
         this.scoreInterface.innerHTML = `${this.score} / ${this.maxScore} <i class='bi bi-floppy2-fill'></i>`;
     }
 
@@ -218,6 +190,10 @@ class Sprite {
             this.y + this.height > obj.y
           );
     }
+
+    
+    /** Método que calcula el movimiento del sprite */
+    move(){};
 }
 
 
@@ -243,23 +219,52 @@ class Character extends Sprite {
         this.element.classList.add("right");
         this.sndJump = new Audio("./src/sounds/jump.mp3")
         this.sndJump.volume = 0.5;
+        this.touchInterval = null;
     }
 
     /**
      * Método que mueve el sprite según los botones pulsados.
      * @param {*} event - Evento que condiciona el movimiento del Sprite.
+     * @override
      */
-    move(event){
-        if((event.key === "ArrowRight" && this.x != 720)||(event.target.id == "touchRight" && this.x != 720)){
-            this.x += this.speed;
-            this.element.classList.add("right")
-        } else if ((event.key === "ArrowLeft" && this.x != 0)||(event.target.id == "touchLeft" && this.x != 0)){
-            this.x -= this.speed;
-            this.element.classList.remove("right")
-        }   else if(event.key === "ArrowUp" || event.target.id == "touchTop"){
+    move(event) {
+        const screenWidth = 720; // Ancho máximo de la pantalla
+        const moveAmount = this.speed; 
+    
+        if ((event.key === "ArrowRight" || event.target?.id === "touchRight") && this.x + moveAmount <= screenWidth) {
+            this.x += moveAmount;
+            this.element.classList.add("right");
+        } else if ((event.key === "ArrowLeft" || event.target?.id === "touchLeft") && this.x - moveAmount >= 0) {
+            this.x -= moveAmount;
+            this.element.classList.remove("right");
+        } else if (event.key === "ArrowUp" || event.target?.id === "touchTop") {
             this.jump();
         }
+    
         this.updPosition();
+    }
+
+    handleTouchStart(event) {
+        if (this.touchInterval) return; 
+
+        this.touchInterval = setInterval(() => {
+            this.move(event); 
+        }, 60); 
+    }
+
+    handleTouchEnd() {
+        clearInterval(this.touchInterval); 
+        this.touchInterval = null;
+    }
+
+    addTouchControls() {
+        document.getElementById("touchLeft").addEventListener("touchstart", (event) => this.handleTouchStart(event));
+        document.getElementById("touchRight").addEventListener("touchstart", (event) => this.handleTouchStart(event));
+        document.getElementById("touchTop").addEventListener("touchstart", (event) => this.handleTouchStart(event));
+
+        document.getElementById("touchLeft").addEventListener("touchend", () => this.handleTouchEnd());
+        document.getElementById("touchRight").addEventListener("touchend", () => this.handleTouchEnd());
+        document.getElementById("touchTop").addEventListener("touchend", () => this.handleTouchEnd());
     }
     
     /** Método que ejecuta el salto del Character
@@ -365,7 +370,9 @@ class Raven extends Sprite{
     }
 
     
-    /** Método que calcula el movimiento de Raven */
+    /** Método que calcula el movimiento de Raven 
+     * @override
+    */
     move(){
        this.moveInterval = setInterval(() => {
             if (this.moveLeft) {
