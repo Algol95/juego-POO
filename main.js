@@ -40,10 +40,9 @@ class Game {
         this.collisionInterval = null;
         this.levelInterval = null;
         this.keydownMove = (e) => this.character.move(e);
-
         this.buildScenario();
         this.addEvents();
-        this.checkLevel();
+        this.checkVictory();
         this.viewScore();
     }
 
@@ -51,17 +50,32 @@ class Game {
     buildScenario() {
         this.character = new Character();
         this.container.appendChild(this.character.element);
-        this.character.addTouchControls(); // Activa los controles táctiles dentro de Character
+        this.character.addTouchControls();
 
-        for (let index = 0; index < this.maxScore; index++) {
+        for (let i = 0; i < this.maxScore; i++) {
             const floppy = new Floppy();
             this.floppys.push(floppy);
             this.container.appendChild(floppy.element);
         }
-
-        const raven = new Raven();
-        this.ravens.push(raven);
-        this.container.appendChild(raven.element);
+        switch (this.level) {
+            case 1:
+                this.ravens.push(new Raven(Math.random() * 700 + 20, 150));
+                break;
+            case 2:
+                this.ravens.push(new Raven(Math.random() * 700 + 20, 150));
+                this.ravens.push(new Raven(Math.random() * 700 + 20, 250));
+                break;
+            case 3:
+                this.ravens.push(new Raven(150));
+                this.ravens.push(new Raven(250));
+                this.ravens.push(new Raven(720,300));
+                break;
+            default:
+                this.ravens=[];
+        }
+        for (let i = 0; i < this.ravens; i++) {
+            this.container.appendChild(this.ravens[i].element);
+        }
     }
 
     /** Agrega los eventos del juego */
@@ -90,6 +104,54 @@ class Game {
         }, 100);
     }
 
+    checkVictory() {
+        this.victoryInterval = setInterval(() => {
+            if (this.floppys.length === 0) {
+                clearInterval(this.collisionInterval);
+                clearInterval(this.victoryInterval);
+                window.removeEventListener("keydown", this.keydownMove);
+
+                if (this.level < 3) {
+                    this.nextLevel();
+                } else {
+                    this.winGame();
+                }
+            }
+        }, 100);
+    }
+
+    nextLevel() {
+        const menuLevel = document.getElementById("menu-level");
+        menuLevel.innerHTML = `<h1><i class="bi bi-award"></i> <br />NIVEL ${this.level} ALCANZADO</h1>
+        <p>
+          ¡Ánimo ya te queda poco!
+        </p>
+        <button id="btnNextLevel"><i class="bi bi-play-fill"></i> Next</button>`
+        menuLevel.style.display = "block";
+        document.getElementById("btnNextLevel").onclick = () => {
+            menuLevel.style.display = "none";
+            this.restartGame(this.level+1, this.maxScore+2);
+        };
+    }
+
+    winGame() {
+        document.getElementById("menu-victory").style.display = "block";
+    }
+
+    endGame() {
+        document.getElementById("menu-end").style.display = "block";
+    }
+
+    viewScore() {
+        this.scoreInterface.innerHTML = `${this.score} / ${this.maxScore} <i class='bi bi-floppy2-fill'></i>`;
+    }
+
+    restartGame(level, maxScore) {
+        this.container.innerHTML = "";
+        setTimeout(1);
+        new Game(level, maxScore);
+    }
+
     /** Pausa o inicia la música del juego */
     toggleMusic() {
         if (this.musicPlaying) {
@@ -101,45 +163,6 @@ class Game {
         }
         this.musicPlaying = !this.musicPlaying;
     }
-
-    /** Comprueba si se cumple la condición de victoria */
-    checkLevel() {
-        this.levelInterval = setInterval(() => {
-            if (this.floppys.length === 0) {
-                const menuVictory = document.getElementById("menu-victory");
-                window.removeEventListener("keydown", this.keydownMove);
-                this.backgroundMusic.pause();
-                this.victoryMusic.play();
-                menuVictory.style.display = "block";
-
-                this.ravens.forEach(raven => {
-                    clearInterval(raven.moveInterval);
-                    
-                });
-                clearInterval(this.collisionInterval);
-                clearInterval(this.victoryInterval);
-            }
-        }, 100);
-    }
-
-    /** Despliega el menú de derrota */
-    endGame() {
-        const menuEnd = document.getElementById("menu-end");
-        menuEnd.style.display = "block";
-        window.removeEventListener("keydown", this.keydownMove);
-        this.backgroundMusic.pause();
-        this.endMusic.play();
-
-        this.ravens.forEach(raven => {
-            clearInterval(raven.moveInterval);
-        });
-    }
-
-    /** Muestra por pantalla la puntuación actual */
-    viewScore() {
-        this.scoreInterface.innerHTML = `${this.score} / ${this.maxScore} <i class='bi bi-floppy2-fill'></i>`;
-    }
-
 }
 
 
@@ -370,18 +393,11 @@ class Floppy extends Sprite {
 class Raven extends Sprite{
     
     /**
-     * Crea una instancia de Raven en una posición en x aleatoria y una "y" pasada por parametro.
+     * Crea una instancia de Raven en una posición en x e y.
      * @constructor
      */
-    constructor(y){ 
-        super(Math.random() * 700 + 20, y, 56,32,10,"raven")
-        this.moveLeft = true;
-        this.moveInterval = null;
-        this.move();
-    }
-
-    constructor() {
-        super(720, 300,56,32,10,"raven")
+    constructor(x,y){ 
+        super(x, y, 56,32,10,"raven")
         this.moveLeft = true;
         this.moveInterval = null;
         this.move();
@@ -415,7 +431,7 @@ function startGame(){
         interfaceBot[0].style.display = "block"
     }
     menuStart.style.display = "none";
-    const game = new Game(3);
+    const game = new Game(0, 3);
 }
 
 

@@ -140,6 +140,10 @@ body h1 {
 #menu-end{
   display: none;
 }
+
+#menu-level{
+  display: none;
+}
 /* ---------------------- INTERFACE - AMCA -----------------------*/
 
 .interface {
