@@ -163,8 +163,7 @@ body h1 {
   font-size: 3rem;
   position: relative;
   display: none;
-  z-index: 2;
-  
+  z-index: 9;
 }
 
 .interface-bot-bi{

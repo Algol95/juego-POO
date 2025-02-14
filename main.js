@@ -64,11 +64,11 @@ class Game {
                 break;
             case 2:
                 this.ravens.push(new Raven(Math.random() * 700 + 20, 150));
-                this.ravens.push(new Raven(Math.random() * 700 + 20, 250));
+                this.ravens.push(new Raven(Math.random() * 700 + 20, 50));
                 break;
             case 3:
                 this.ravens.push(new Raven(Math.random() * 700 + 20, 150));
-                this.ravens.push(new Raven(Math.random() * 700 + 20, 250));
+                this.ravens.push(new Raven(Math.random() * 700 + 20, 50));
                 this.ravens.push(new Raven(720,300));
                 break;
             default:
@@ -139,7 +139,7 @@ class Game {
     /** Método que cambia al siguiente nivel */
     nextLevel() {
         const menuLevel = document.getElementById("menu-level");
-        menuLevel.innerHTML = `<h1><i class="bi bi-award"></i> <br />NIVEL ${this.level} ALCANZADO</h1>
+        menuLevel.innerHTML = `<h1><i class="bi bi-award"></i> <br />NIVEL ${this.level+1} ALCANZADO</h1>
         <p>
           ¡Ánimo ya te queda poco!
         </p>
@@ -164,6 +164,7 @@ class Game {
     endGame() {
         this.backgroundMusic.pause();
         this.endMusic.play();
+        this.collisionInterval = null;
         document.getElementById("menu-end").style.display = "block";
     }
 
@@ -208,6 +209,10 @@ class Game {
         <i class="bi bi-arrow-up-circle interface-bot-bi" id="touchTop"></i>
         <i class="bi bi-arrow-right-circle interface-bot-bi" id="touchRight"></i>
       </div>`;
+        const interfaceBot = document.getElementsByClassName("interface-bot");
+        if (isMobile()){
+            interfaceBot[0].style.display = "block"
+        }
         new Game(level, maxScore);
     }
 
@@ -480,7 +485,7 @@ class Raven extends Sprite{
                 if (this.x >= 730) this.moveLeft = true; 
             }
             this.updPosition();
-        }, 50);
+        }, 70);
     }
 }
 
