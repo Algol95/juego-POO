@@ -228,7 +228,7 @@ class Character extends Sprite {
      * @override
      */
     move(event) {
-        const screenWidth = 720; // Ancho máximo de la pantalla
+        const screenWidth = 720;
         const moveAmount = this.speed; 
     
         if ((event.key === "ArrowRight" || event.target?.id === "touchRight") && this.x + moveAmount <= screenWidth) {
@@ -244,27 +244,36 @@ class Character extends Sprite {
         this.updPosition();
     }
 
-    handleTouchStart(event) {
+    
+    /**
+     * Este método establece touchInterval como verdadero cuando se realiza el evento de tipo touchstart.
+     *
+     * @param {addEventListener("touchStart")} event 
+     */
+    touchStart(event) {
         if (this.touchInterval) return; 
-
         this.touchInterval = setInterval(() => {
             this.move(event); 
         }, 60); 
     }
 
-    handleTouchEnd() {
+    
+    /** Este método establece touchInterval como falso cuando se realiza el evento de tipo touchend */
+    touchEnd() {
         clearInterval(this.touchInterval); 
         this.touchInterval = null;
     }
 
+    
+    /** Método que agrega los eventos touch de start y end */
     addTouchControls() {
-        document.getElementById("touchLeft").addEventListener("touchstart", (event) => this.handleTouchStart(event));
-        document.getElementById("touchRight").addEventListener("touchstart", (event) => this.handleTouchStart(event));
-        document.getElementById("touchTop").addEventListener("touchstart", (event) => this.handleTouchStart(event));
+        document.getElementById("touchLeft").addEventListener("touchstart", (event) => this.touchStart(event));
+        document.getElementById("touchRight").addEventListener("touchstart", (event) => this.touchStart(event));
+        document.getElementById("touchTop").addEventListener("touchstart", (event) => this.touchStart(event));
 
-        document.getElementById("touchLeft").addEventListener("touchend", () => this.handleTouchEnd());
-        document.getElementById("touchRight").addEventListener("touchend", () => this.handleTouchEnd());
-        document.getElementById("touchTop").addEventListener("touchend", () => this.handleTouchEnd());
+        document.getElementById("touchLeft").addEventListener("touchend", () => this.touchEnd());
+        document.getElementById("touchRight").addEventListener("touchend", () => this.touchEnd());
+        document.getElementById("touchTop").addEventListener("touchend", () => this.touchEnd());
     }
     
     /** Método que ejecuta el salto del Character

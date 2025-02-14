@@ -47,12 +47,12 @@ class Game {
      * @constructor
      * @param {number} maxScore Parametro que establece la cantidad de objetos de tipo Floppy del juego y la cantidad máxima coleccionable.
      */
-    constructor(maxScore){
+    constructor(maxScore) {
         this.container = document.getElementById("game-container");
         this.character = null;
         this.ravens = [];
         this.floppys = [];
-        this.score = 0
+        this.score = 0;
         this.maxScore = maxScore;
         this.backgroundMusic = new Audio("./src/sounds/bg-music-michiverse.mp3");
         this.backgroundMusic.loop = true;
@@ -66,101 +66,103 @@ class Game {
         this.collisionInterval = null;
         this.victoryInterval = null;
         this.keydownMove = (e) => this.character.move(e);
+
         this.buildScenario();
         this.addEvents();
         this.checkVictory();
         this.viewScore();
-        
     }
 
     /** Construye el escenario del juego */
-    buildScenario(){
+    buildScenario() {
         this.character = new Character();
         this.container.appendChild(this.character.element);
+        this.character.addTouchControls(); // Activa los controles táctiles dentro de Character
+
         for (let index = 0; index &lt; this.maxScore; index++) {
             const floppy = new Floppy();
             this.floppys.push(floppy);
             this.container.appendChild(floppy.element);
         }
+
         const raven = new Raven();
         this.ravens.push(raven);
         this.container.appendChild(raven.element);
     }
 
-    
     /** Agrega los eventos del juego */
-    addEvents(){
+    addEvents() {
         window.addEventListener("keydown", this.keydownMove);
         this.checkCollisions();
-        //Agrega el evento de música
-        this.btnMusic.addEventListener("click",()=>this.toggleMusic());
+        this.btnMusic.addEventListener("click", () => this.toggleMusic());
     }
 
-    
     /** Comprueba las colisiones entre objetos del juego */
-    checkCollisions(){
+    checkCollisions() {
         this.collisionInterval = setInterval(() => {
             this.floppys.forEach((floppy, index) => {
                 if (this.character.collisionWith(floppy)) {
                     floppy.sndColl.play();
                     this.container.removeChild(floppy.element);
-                    this.floppys.splice(index,1)
-                    this.score++
+                    this.floppys.splice(index, 1);
+                    this.score++;
                     this.viewScore();
                 }
-            })
-            this.ravens.forEach((raven) => {
-                if(this.character.collisionWith(raven)) this.endGame();
             });
-        },100);
+
+            this.ravens.forEach((raven) => {
+                if (this.character.collisionWith(raven)) this.endGame();
+            });
+        }, 100);
     }
-    
-    /** Pausa e inicializa la música de juego, segun si estaba sonando previamente o no. */
-    toggleMusic(){
-        if (this.musicPlaying){
+
+    /** Pausa o inicia la música del juego */
+    toggleMusic() {
+        if (this.musicPlaying) {
             this.backgroundMusic.pause();
-            this.btnMusic.innerHTML = '&lt;i class="bi bi-volume-mute-fill">&lt;/i>'
+            this.btnMusic.innerHTML = '&lt;i class="bi bi-volume-mute-fill">&lt;/i>';
         } else {
             this.backgroundMusic.play();
-            this.btnMusic.innerHTML = '&lt;i class="bi bi-volume-up-fill">&lt;/i>'
+            this.btnMusic.innerHTML = '&lt;i class="bi bi-volume-up-fill">&lt;/i>';
         }
         this.musicPlaying = !this.musicPlaying;
     }
 
-    
-    /** Comprueba si se cumple la condicion de Victoria */
-    checkVictory(){
+    /** Comprueba si se cumple la condición de victoria */
+    checkVictory() {
         this.victoryInterval = setInterval(() => {
-        if(this.floppys.length === 0){
-            const menuVictory = document.getElementById("menu-victory");
-            window.removeEventListener("keydown",this.keydownMove);
-            this.backgroundMusic.pause();
-            this.victoryMusic.play();
-            menuVictory.style.display = "block";
-            this.ravens.forEach(raven => {
-                clearInterval(raven.moveInterval);
-            });
-            clearInterval(this.victoryInterval);
-        }
-        },100);
+            if (this.floppys.length === 0) {
+                const menuVictory = document.getElementById("menu-victory");
+                window.removeEventListener("keydown", this.keydownMove);
+                this.backgroundMusic.pause();
+                this.victoryMusic.play();
+                menuVictory.style.display = "block";
+
+                this.ravens.forEach(raven => {
+                    clearInterval(raven.moveInterval);
+                    
+                });
+                clearInterval(this.collisionInterval);
+                clearInterval(this.victoryInterval);
+            }
+        }, 100);
     }
 
-    
     /** Despliega el menú de derrota */
-    endGame(){
+    endGame() {
         const menuEnd = document.getElementById("menu-end");
         menuEnd.style.display = "block";
-        window.removeEventListener("keydown",this.keydownMove);
+        window.removeEventListener("keydown", this.keydownMove);
         this.backgroundMusic.pause();
         this.endMusic.play();
+
         this.ravens.forEach(raven => {
             clearInterval(raven.moveInterval);
-        })
+        });
     }
 
-    
     /** Muestra por pantalla la puntuación actual */
-    viewScore(){
+    viewScore() {
         this.scoreInterface.innerHTML = `${this.score} / ${this.maxScore} &lt;i class='bi bi-floppy2-fill'>&lt;/i>`;
     }
 
@@ -216,6 +218,10 @@ class Sprite {
             this.y + this.height > obj.y
           );
     }
+
+    
+    /** Método que calcula el movimiento del sprite */
+    move(){};
 }
 
 
@@ -232,33 +238,71 @@ class Character extends Sprite {
      * @constructor
      */
     constructor(){
-        super(50,335,70,70,10,"character")
+        super(50,300,70,70,20,"character")
         this.jumpingAir = true; 
         this.jumpInterval = null;
         this.fallInterval = null;
         this.jumping = false;
         this.falling = false;
         this.element.classList.add("right");
-
+        this.sndJump = new Audio("./src/sounds/jump.mp3")
+        this.sndJump.volume = 0.5;
+        this.touchInterval = null;
     }
 
     /**
      * Método que mueve el sprite según los botones pulsados.
      * @param {*} event - Evento que condiciona el movimiento del Sprite.
+     * @override
      */
-    move(event){
-        if(event.key === "ArrowRight" &amp;&amp; this.x != 720){
-            this.x += this.speed;
-            this.element.classList.add("right")
-        } else if (event.key === "ArrowLeft" &amp;&amp; this.x != 0){
-            this.x -= this.speed;
-            this.element.classList.remove("right")
-        }   else if(event.key === "ArrowUp"){
+    move(event) {
+        const screenWidth = 720;
+        const moveAmount = this.speed; 
+    
+        if ((event.key === "ArrowRight" || event.target?.id === "touchRight") &amp;&amp; this.x + moveAmount &lt;= screenWidth) {
+            this.x += moveAmount;
+            this.element.classList.add("right");
+        } else if ((event.key === "ArrowLeft" || event.target?.id === "touchLeft") &amp;&amp; this.x - moveAmount >= 0) {
+            this.x -= moveAmount;
+            this.element.classList.remove("right");
+        } else if (event.key === "ArrowUp" || event.target?.id === "touchTop") {
             this.jump();
         }
+    
         this.updPosition();
     }
 
+    
+    /**
+     * Este método establece touchInterval como verdadero cuando se realiza el evento de tipo touchstart.
+     *
+     * @param {addEventListener("touchStart")} event 
+     */
+    touchStart(event) {
+        if (this.touchInterval) return; 
+        this.touchInterval = setInterval(() => {
+            this.move(event); 
+        }, 60); 
+    }
+
+    
+    /** Este método establece touchInterval como falso cuando se realiza el evento de tipo touchend */
+    touchEnd() {
+        clearInterval(this.touchInterval); 
+        this.touchInterval = null;
+    }
+
+    
+    /** Método que agrega los eventos touch de start y end */
+    addTouchControls() {
+        document.getElementById("touchLeft").addEventListener("touchstart", (event) => this.touchStart(event));
+        document.getElementById("touchRight").addEventListener("touchstart", (event) => this.touchStart(event));
+        document.getElementById("touchTop").addEventListener("touchstart", (event) => this.touchStart(event));
+
+        document.getElementById("touchLeft").addEventListener("touchend", () => this.touchEnd());
+        document.getElementById("touchRight").addEventListener("touchend", () => this.touchEnd());
+        document.getElementById("touchTop").addEventListener("touchend", () => this.touchEnd());
+    }
     
     /** Método que ejecuta el salto del Character
      * @modified Aplicada la correción de Nico para desbugear el bucle salto-caída en el aire.
@@ -280,6 +324,7 @@ class Character extends Sprite {
             this.jumpInterval = setInterval(() => {
                 if (this.y > maxHeight) {
                     this.y -= 10;
+                    this.sndJump.play();
                 } else {
                     clearInterval(this.jumpInterval);
                     this.jumpInterval = null;
@@ -298,7 +343,7 @@ class Character extends Sprite {
     fall(){
         this.falling = true;
         this.fallInterval = setInterval(() => {
-            if(this.y &lt; 335){
+            if(this.y &lt; 300){
                 this.y += 10;
                 this.element.classList.remove("jump");
                 this.element.classList.add("fall");
@@ -308,7 +353,7 @@ class Character extends Sprite {
                 this.fallInterval = null;
                 this.falling = false;
                 this.jumpingAir = true; 
-                this.y = 335;
+                this.y = 300;
                 this.actualizarPosicion;
                 return;
             }
@@ -362,7 +407,9 @@ class Raven extends Sprite{
     }
 
     
-    /** Método que calcula el movimiento de Raven */
+    /** Método que calcula el movimiento de Raven 
+     * @override
+    */
     move(){
        this.moveInterval = setInterval(() => {
             if (this.moveLeft) {
@@ -383,6 +430,10 @@ class Raven extends Sprite{
 /** Fúnción que comienza el juego. */
 function startGame(){
     const menuStart = document.getElementById("menu-start");
+    const interfaceBot = document.getElementsByClassName("interface-bot");
+    if (isMobile()){
+        interfaceBot[0].style.display = "block"
+    }
     menuStart.style.display = "none";
     const game = new Game(3);
 }
@@ -393,8 +444,41 @@ function restart(){
     location.reload();
 }
 
+
+/** Función que habilita pantalla completa */
+function goFullscreen() {
+    let gameContainer = document.getElementById("game-container");
+    if (gameContainer.requestFullscreen) {
+      gameContainer.requestFullscreen();
+    } else if (gameContainer.mozRequestFullScreen) { 
+      gameContainer.mozRequestFullScreen();
+    } else if (gameContainer.webkitRequestFullscreen) { 
+      gameContainer.webkitRequestFullscreen();
+    } else if (gameContainer.msRequestFullscreen) { 
+      gameContainer.msRequestFullscreen();
+    }
+  }
+
+  
+  /**
+   * Función que devuelve un booleano si detecta que esta navegando en una tablet o movil
+   * @returns {boolean} True o False : Movil/Tablet
+   */
+  function isMobile() {
+    return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  }
+  /** Habilita la pantalla completa en función del parametro.
+   * @param {boolean} isMobile
+   */
+  if (isMobile()) {
+    document.addEventListener("click", goFullscreen, { once: true });
+    document.addEventListener("touchstart", goFullscreen, { once: true });
+  }
+
+window.isMobile = isMobile;
 window.restart = restart;
-window.startGame = startGame;</code></pre>
+window.startGame = startGame;
+</code></pre>
         </article>
     </section>
 
@@ -404,13 +488,13 @@ window.startGame = startGame;</code></pre>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="global.html#Character">Character</a></li><li><a href="global.html#Floppy">Floppy</a></li><li><a href="global.html#Game">Game</a></li><li><a href="global.html#Raven">Raven</a></li><li><a href="global.html#Sprite">Sprite</a></li></ul><h3>Global</h3><ul><li><a href="global.html#restart">restart</a></li><li><a href="global.html#startGame">startGame</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="global.html#Character">Character</a></li><li><a href="global.html#Floppy">Floppy</a></li><li><a href="global.html#Game">Game</a></li><li><a href="global.html#Raven">Raven</a></li><li><a href="global.html#Sprite">Sprite</a></li></ul><h3>Global</h3><ul><li><a href="global.html#goFullscreen">goFullscreen</a></li><li><a href="global.html#isMobile">isMobile</a></li><li><a href="global.html#restart">restart</a></li><li><a href="global.html#startGame">startGame</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Thu Feb 13 2025 18:47:02 GMT+0100 (hora estándar de Europa central)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Fri Feb 14 2025 11:47:15 GMT+0100 (hora estándar de Europa central)
 </footer>
 
 <script> prettyPrint(); </script>
