@@ -17,14 +17,16 @@ class Game {
      * Crea una instancia de Game
      *
      * @constructor
+     * @param {number} level Parametro que establece el nivel del juego
      * @param {number} maxScore Parametro que establece la cantidad de objetos de tipo Floppy del juego y la cantidad máxima coleccionable.
      */
-    constructor(maxScore) {
+    constructor(level, maxScore) {
         this.container = document.getElementById("game-container");
         this.character = null;
         this.ravens = [];
         this.floppys = [];
         this.score = 0;
+        this.level = level;
         this.maxScore = maxScore;
         this.backgroundMusic = new Audio("./src/sounds/bg-music-michiverse.mp3");
         this.backgroundMusic.loop = true;
@@ -36,12 +38,12 @@ class Game {
         this.btnMusic = document.getElementById("btnMusic");
         this.scoreInterface = document.getElementById("scoreInterface");
         this.collisionInterval = null;
-        this.victoryInterval = null;
+        this.levelInterval = null;
         this.keydownMove = (e) => this.character.move(e);
 
         this.buildScenario();
         this.addEvents();
-        this.checkVictory();
+        this.checkLevel();
         this.viewScore();
     }
 
@@ -101,8 +103,8 @@ class Game {
     }
 
     /** Comprueba si se cumple la condición de victoria */
-    checkVictory() {
-        this.victoryInterval = setInterval(() => {
+    checkLevel() {
+        this.levelInterval = setInterval(() => {
             if (this.floppys.length === 0) {
                 const menuVictory = document.getElementById("menu-victory");
                 window.removeEventListener("keydown", this.keydownMove);
@@ -368,16 +370,22 @@ class Floppy extends Sprite {
 class Raven extends Sprite{
     
     /**
-     * Crea una instancia de Raven en una posición en x aleatoria.
+     * Crea una instancia de Raven en una posición en x aleatoria y una "y" pasada por parametro.
      * @constructor
      */
-    constructor(){ 
-        super(Math.random() * 700 + 20, 150,56,32,10,"raven")
+    constructor(y){ 
+        super(Math.random() * 700 + 20, y, 56,32,10,"raven")
         this.moveLeft = true;
         this.moveInterval = null;
         this.move();
     }
 
+    constructor() {
+        super(720, 300,56,32,10,"raven")
+        this.moveLeft = true;
+        this.moveInterval = null;
+        this.move();
+    }
     
     /** Método que calcula el movimiento de Raven 
      * @override
@@ -391,10 +399,10 @@ class Raven extends Sprite{
             } else {
                 this.element.classList.add("right");
                 this.x += this.speed;
-                if (this.x >= 720) this.moveLeft = true; 
+                if (this.x >= 730) this.moveLeft = true; 
             }
             this.updPosition();
-        }, 40);
+        }, 50);
     }
 }
 
