@@ -119,14 +119,14 @@ class Game {
     }
 
     
-    /** Chekea si se cumple la condiciónn de victoria o de siguiente nivel */
+    /** Chekea si se cumple la condición de victoria o de siguiente nivel */
     checkVictory() {
         this.victoryInterval = setInterval(() => {
             if (this.floppys.length === 0) {
                 clearInterval(this.collisionInterval);
                 clearInterval(this.victoryInterval);
                 window.removeEventListener("keydown", this.keydownMove);
-                if (this.level < 1) {
+                if (this.level < 3) {
                     this.nextLevel();
                 } else {
                     this.winGame();

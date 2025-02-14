@@ -45,14 +45,17 @@ class Game {
      * Crea una instancia de Game
      *
      * @constructor
+     * @param {number} level Parametro que establece el nivel del juego
      * @param {number} maxScore Parametro que establece la cantidad de objetos de tipo Floppy del juego y la cantidad máxima coleccionable.
      */
-    constructor(maxScore) {
+    constructor(level, maxScore) {
         this.container = document.getElementById("game-container");
+        this.section = document.getElementById("section-game");
         this.character = null;
         this.ravens = [];
         this.floppys = [];
         this.score = 0;
+        this.level = level;
         this.maxScore = maxScore;
         this.backgroundMusic = new Audio("./src/sounds/bg-music-michiverse.mp3");
         this.backgroundMusic.loop = true;
@@ -64,9 +67,8 @@ class Game {
         this.btnMusic = document.getElementById("btnMusic");
         this.scoreInterface = document.getElementById("scoreInterface");
         this.collisionInterval = null;
-        this.victoryInterval = null;
+        this.levelInterval = null;
         this.keydownMove = (e) => this.character.move(e);
-
         this.buildScenario();
         this.addEvents();
         this.checkVictory();
@@ -77,17 +79,32 @@ class Game {
     buildScenario() {
         this.character = new Character();
         this.container.appendChild(this.character.element);
-        this.character.addTouchControls(); // Activa los controles táctiles dentro de Character
+        this.character.addTouchControls();
 
-        for (let index = 0; index &lt; this.maxScore; index++) {
+        for (let i = 0; i &lt; this.maxScore; i++) {
             const floppy = new Floppy();
             this.floppys.push(floppy);
             this.container.appendChild(floppy.element);
         }
-
-        const raven = new Raven();
-        this.ravens.push(raven);
-        this.container.appendChild(raven.element);
+        switch (this.level) {
+            case 1:
+                this.ravens.push(new Raven(Math.random() * 700 + 20, 150));
+                break;
+            case 2:
+                this.ravens.push(new Raven(Math.random() * 700 + 20, 150));
+                this.ravens.push(new Raven(Math.random() * 700 + 20, 250));
+                break;
+            case 3:
+                this.ravens.push(new Raven(Math.random() * 700 + 20, 150));
+                this.ravens.push(new Raven(Math.random() * 700 + 20, 250));
+                this.ravens.push(new Raven(720,300));
+                break;
+            default:
+                this.ravens=[];
+        }
+        for (let i = 0; i &lt; this.ravens.length; i++) {
+            this.container.appendChild(this.ravens[i].element);
+        }
     }
 
     /** Agrega los eventos del juego */
@@ -95,6 +112,19 @@ class Game {
         window.addEventListener("keydown", this.keydownMove);
         this.checkCollisions();
         this.btnMusic.addEventListener("click", () => this.toggleMusic());
+    }
+
+    
+    /** "Destruye" la instancia de class */
+    destroy() {
+
+        clearInterval(this.collisionInterval);
+        clearInterval(this.victoryInterval);
+        window.removeEventListener("keydown", this.keydownMove);
+        this.container.innerHTML = "";
+        this.backgroundMusic.pause();
+        this.backgroundMusic = null;
+
     }
 
     /** Comprueba las colisiones entre objetos del juego */
@@ -116,6 +146,99 @@ class Game {
         }, 100);
     }
 
+    
+    /** Chekea si se cumple la condiciónn de victoria o de siguiente nivel */
+    checkVictory() {
+        this.victoryInterval = setInterval(() => {
+            if (this.floppys.length === 0) {
+                clearInterval(this.collisionInterval);
+                clearInterval(this.victoryInterval);
+                window.removeEventListener("keydown", this.keydownMove);
+                if (this.level &lt; 1) {
+                    this.nextLevel();
+                } else {
+                    this.winGame();
+                }
+            }
+        }, 100);
+    }
+
+    
+    /** Método que cambia al siguiente nivel */
+    nextLevel() {
+        const menuLevel = document.getElementById("menu-level");
+        menuLevel.innerHTML = `&lt;h1>&lt;i class="bi bi-award">&lt;/i> &lt;br />NIVEL ${this.level} ALCANZADO&lt;/h1>
+        &lt;p>
+          ¡Ánimo ya te queda poco!
+        &lt;/p>
+        &lt;button id="btnNextLevel">&lt;i class="bi bi-play-fill">&lt;/i> Next&lt;/button>`
+        menuLevel.style.display = "block";
+        document.getElementById("btnNextLevel").onclick = () => {
+            menuLevel.style.display = "none";
+            this.restartGame(this.level+1, this.maxScore+2);
+        };
+    }
+
+    
+    /** Método para desplegar menú de victoria */
+    winGame() {
+        this.backgroundMusic.pause();
+        this.victoryMusic.play();
+        document.getElementById("menu-victory").style.display = "block";
+    }
+
+    
+    /** Método para desplegar menu de fin */
+    endGame() {
+        this.backgroundMusic.pause();
+        this.endMusic.play();
+        document.getElementById("menu-end").style.display = "block";
+    }
+
+    
+    /** Visualiza la puntuación y le nivel actual en la interfaz del juego */
+    viewScore() {
+        this.scoreInterface.innerHTML = `Nivel ${this.level} &lt;i class="bi bi-caret-up-square-fill">&lt;/i> &amp;nbsp;&amp;nbsp; ${this.score} / ${this.maxScore} &lt;i class='bi bi-floppy2-fill'>&lt;/i>`;
+    }
+
+    
+    /**
+     * Método que inicia un nivel nuevo
+     *
+     * @param {number} level Valor dle siguiente nivel
+     * @param {number} maxScore Cantidad de floppys a recoger
+     */
+    restartGame(level, maxScore) {
+        this.destroy();
+        this.container.innerHTML = `&lt;div class="menu" id="menu-victory">
+        &lt;h1>&lt;i class="bi bi-trophy">&lt;/i> &lt;br />¡Michifantástico!&lt;/h1>
+        &lt;p>
+          Has recogido todos los michicódigos y ahora los michis pueden abir el michiportal para
+          viajar a NipParadise
+        &lt;/p>
+        &lt;button onclick="restart()">&lt;i class="bi bi-arrow-clockwise">&lt;/i> Restart&lt;/button>
+      &lt;/div>
+      &lt;div class="menu" id="menu-end">
+        &lt;h1>&lt;i class="bi bi-heartbreak">&lt;/i> &lt;br />END GAME&lt;/h1>
+        &lt;p>
+          ¡No te ríndas, vuelve a intentarlo! ¡Los michis te necesitan!
+        &lt;/p>
+        &lt;button onclick="restart()">&lt;i class="bi bi-arrow-clockwise">&lt;/i> Restart&lt;/button>
+      &lt;/div>
+      &lt;div class="menu" id="menu-level">
+        
+      &lt;/div>
+      &lt;div class="interface">
+        &lt;div id="scoreInterface">&lt;/div>
+        &lt;button id="btnMusic">&lt;i class="bi bi-volume-up-fill">&lt;/i>&lt;/button>
+      &lt;/div>
+      &lt;div class="interface-bot">&lt;i class="bi bi-arrow-left-circle interface-bot-bi" id="touchLeft">&lt;/i>
+        &lt;i class="bi bi-arrow-up-circle interface-bot-bi" id="touchTop">&lt;/i>
+        &lt;i class="bi bi-arrow-right-circle interface-bot-bi" id="touchRight">&lt;/i>
+      &lt;/div>`;
+        new Game(level, maxScore);
+    }
+
     /** Pausa o inicia la música del juego */
     toggleMusic() {
         if (this.musicPlaying) {
@@ -127,45 +250,6 @@ class Game {
         }
         this.musicPlaying = !this.musicPlaying;
     }
-
-    /** Comprueba si se cumple la condición de victoria */
-    checkVictory() {
-        this.victoryInterval = setInterval(() => {
-            if (this.floppys.length === 0) {
-                const menuVictory = document.getElementById("menu-victory");
-                window.removeEventListener("keydown", this.keydownMove);
-                this.backgroundMusic.pause();
-                this.victoryMusic.play();
-                menuVictory.style.display = "block";
-
-                this.ravens.forEach(raven => {
-                    clearInterval(raven.moveInterval);
-                    
-                });
-                clearInterval(this.collisionInterval);
-                clearInterval(this.victoryInterval);
-            }
-        }, 100);
-    }
-
-    /** Despliega el menú de derrota */
-    endGame() {
-        const menuEnd = document.getElementById("menu-end");
-        menuEnd.style.display = "block";
-        window.removeEventListener("keydown", this.keydownMove);
-        this.backgroundMusic.pause();
-        this.endMusic.play();
-
-        this.ravens.forEach(raven => {
-            clearInterval(raven.moveInterval);
-        });
-    }
-
-    /** Muestra por pantalla la puntuación actual */
-    viewScore() {
-        this.scoreInterface.innerHTML = `${this.score} / ${this.maxScore} &lt;i class='bi bi-floppy2-fill'>&lt;/i>`;
-    }
-
 }
 
 
@@ -396,16 +480,18 @@ class Floppy extends Sprite {
 class Raven extends Sprite{
     
     /**
-     * Crea una instancia de Raven en una posición en x aleatoria.
+     * Inicializa un objeto de tipo Raven.
+     *
      * @constructor
+     * @param {number} x Coordenadas en el eje x
+     * @param {number} y Coordenadas en el eje y
      */
-    constructor(){ 
-        super(Math.random() * 700 + 20, 150,56,32,10,"raven")
+    constructor(x,y){ 
+        super(x, y, 56,32,10,"raven")
         this.moveLeft = true;
         this.moveInterval = null;
         this.move();
     }
-
     
     /** Método que calcula el movimiento de Raven 
      * @override
@@ -419,13 +505,14 @@ class Raven extends Sprite{
             } else {
                 this.element.classList.add("right");
                 this.x += this.speed;
-                if (this.x >= 720) this.moveLeft = true; 
+                if (this.x >= 730) this.moveLeft = true; 
             }
             this.updPosition();
-        }, 40);
+        }, 50);
     }
 }
 
+let game;
 
 /** Fúnción que comienza el juego. */
 function startGame(){
@@ -435,9 +522,8 @@ function startGame(){
         interfaceBot[0].style.display = "block"
     }
     menuStart.style.display = "none";
-    const game = new Game(3);
+    game = new Game(0, 3);
 }
-
 
 /** Función que reinicia el juego */
 function restart(){
@@ -475,6 +561,8 @@ function goFullscreen() {
     document.addEventListener("touchstart", goFullscreen, { once: true });
   }
 
+
+window.game = game;
 window.isMobile = isMobile;
 window.restart = restart;
 window.startGame = startGame;
@@ -494,7 +582,7 @@ window.startGame = startGame;
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Fri Feb 14 2025 11:47:15 GMT+0100 (hora estándar de Europa central)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Fri Feb 14 2025 15:37:34 GMT+0100 (hora estándar de Europa central)
 </footer>
 
 <script> prettyPrint(); </script>
