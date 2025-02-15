@@ -2,7 +2,7 @@
 /** 
  * Script principal del juego
  * @author {Ángel Aragón} 
- * @version 1.1
+ * @version 1.1.1
  */
 
 /**
@@ -533,12 +533,14 @@ function goFullscreen() {
 
   
   /**
-   * Función que devuelve un booleano si detecta que esta navegando en una tablet o movil
+   * Función que devuelve un booleano si detecta que esta navegando en una tablet o movil, y que no habra fullscreen inspeccionando elemento
    * @returns {boolean} True o False : Movil/Tablet
    */
   function isMobile() {
-    return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  }
+    return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) && 
+           ('ontouchstart' in window || navigator.maxTouchPoints > 0) &&
+           window.innerWidth <= 800; // Evitar detección en DevTools
+    }
   /** Habilita la pantalla completa en función del parametro.
    * @param {boolean} isMobile
    */
