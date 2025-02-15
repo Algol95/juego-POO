@@ -17,7 +17,7 @@ Recoge todos los **michicódigos** a lo largo de **tres niveles** para ganar la 
 ### Si estás en móvil o tablet 📲
 - Si estás en móvil o tablet ponlo en horizontal y toca la pantalla para ponerlo Fullscreen.
 
-![Aviso Móvil](./src/img/previews/michiverso-movilewarning.jpg)
+![Aviso Móvil](./src/img/previews/michiverso-movilewarning.jpg)![QR](./src/img/previews/michiverso-qr.png)
 
 1. Muevete horizontalmente con ← →  .
 2. Salta pulsando ↑ , pulsalo otra vez mientras caes para un doble salto.
