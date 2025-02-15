@@ -2,7 +2,7 @@
 /** 
  * Script principal del juego
  * @author {Ángel Aragón} 
- * @version 1.1.1
+ * @version 1.1.2
  */
 
 /**
@@ -68,9 +68,9 @@ class Game {
                 this.ravens.push(new Raven(Math.random() * 700 + 20, 50, 10));
                 break;
             case 3:
-                this.ravens.push(new Raven(Math.random() * 700 + 20, 150, 5));
+                this.ravens.push(new Raven(Math.random() * 700 + 20, 90, 5));
                 this.ravens.push(new Raven(Math.random() * 700 + 20, 50, 10));
-                this.ravens.push(new Raven(720,300,20));
+                this.ravens.push(new Raven(720,320,20));
                 break;
             default:
                 this.ravens=[];
@@ -533,13 +533,12 @@ function goFullscreen() {
 
   
   /**
-   * Función que devuelve un booleano si detecta que esta navegando en una tablet o movil, y que no habra fullscreen inspeccionando elemento
+   * Función que devuelve un booleano si detecta que esta navegando en una tablet o movil.
    * @returns {boolean} True o False : Movil/Tablet
+   * @modified Quería que no aplicara para el  DevTools del navegador (inspeccionar elemento) pero no lo consigo.
    */
-  function isMobile() {
-    return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) && 
-           ('ontouchstart' in window || navigator.maxTouchPoints > 0) &&
-           window.innerWidth <= 800; // Evitar detección en DevTools
+    function isMobile() {
+        return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     }
   /** Habilita la pantalla completa en función del parametro.
    * @param {boolean} isMobile
