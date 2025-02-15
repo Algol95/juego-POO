@@ -2,6 +2,7 @@
 /** 
  * Script principal del juego
  * @author {Ángel Aragón} 
+ * @version 1.1
  */
 
 /**
