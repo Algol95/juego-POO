@@ -60,16 +60,16 @@ class Game {
         }
         switch (this.level) {
             case 1:
-                this.ravens.push(new Raven(Math.random() * 700 + 20, 150));
+                this.ravens.push(new Raven(Math.random() * 700 + 20, 150, 5));
                 break;
             case 2:
-                this.ravens.push(new Raven(Math.random() * 700 + 20, 150));
-                this.ravens.push(new Raven(Math.random() * 700 + 20, 50));
+                this.ravens.push(new Raven(Math.random() * 700 + 20, 150, 5));
+                this.ravens.push(new Raven(Math.random() * 700 + 20, 50, 10));
                 break;
             case 3:
-                this.ravens.push(new Raven(Math.random() * 700 + 20, 150));
-                this.ravens.push(new Raven(Math.random() * 700 + 20, 50));
-                this.ravens.push(new Raven(720,300));
+                this.ravens.push(new Raven(Math.random() * 700 + 20, 150, 5));
+                this.ravens.push(new Raven(Math.random() * 700 + 20, 50, 10));
+                this.ravens.push(new Raven(720,300,20));
                 break;
             default:
                 this.ravens=[];
@@ -156,22 +156,30 @@ class Game {
     winGame() {
         this.backgroundMusic.pause();
         this.victoryMusic.play();
+        this.ravens.forEach(raven => {
+            raven.speed = 0;
+        });
         document.getElementById("menu-victory").style.display = "block";
     }
 
     
     /** Método para desplegar menu de fin */
     endGame() {
+        clearInterval(this.collisionInterval);
+        window.removeEventListener("keydown", this.keydownMove);
         this.backgroundMusic.pause();
         this.endMusic.play();
-        this.collisionInterval = null;
+        this.ravens.forEach(raven => {
+            raven.speed = 0;
+        });
         document.getElementById("menu-end").style.display = "block";
     }
 
     
     /** Visualiza la puntuación y le nivel actual en la interfaz del juego */
     viewScore() {
-        this.scoreInterface.innerHTML = `Nivel ${this.level} <i class="bi bi-caret-up-square-fill"></i> &nbsp;&nbsp; ${this.score} / ${this.maxScore} <i class='bi bi-floppy2-fill'></i>`;
+        let msgLvl = this.level == 0 ? "Tutorial <i class='bi bi-journal-bookmark-fill'></i>" : `Nivel ${this.level} <i class="bi bi-caret-up-square-fill"></i>`
+        this.scoreInterface.innerHTML = `${msgLvl} &nbsp;&nbsp; ${this.score} / ${this.maxScore} <i class='bi bi-floppy2-fill'></i>`;
     }
 
     
@@ -318,13 +326,12 @@ class Character extends Sprite {
      */
     move(event) {
         const screenWidth = 720;
-        const moveAmount = this.speed; 
     
-        if ((event.key === "ArrowRight" || event.target?.id === "touchRight") && this.x + moveAmount <= screenWidth) {
-            this.x += moveAmount;
+        if ((event.key === "ArrowRight" || event.target?.id === "touchRight") && this.x + this.speed <= screenWidth) {
+            this.x += this.speed;
             this.element.classList.add("right");
-        } else if ((event.key === "ArrowLeft" || event.target?.id === "touchLeft") && this.x - moveAmount >= 0) {
-            this.x -= moveAmount;
+        } else if ((event.key === "ArrowLeft" || event.target?.id === "touchLeft") && this.x - this.speed >= 0) {
+            this.x -= this.speed;
             this.element.classList.remove("right");
         } else if (event.key === "ArrowUp" || event.target?.id === "touchTop") {
             this.jump();
@@ -405,7 +412,7 @@ class Character extends Sprite {
         this.falling = true;
         this.fallInterval = setInterval(() => {
             if(this.y < 300){
-                this.y += 10;
+                this.y += 7.5;
                 this.element.classList.remove("jump");
                 this.element.classList.add("fall");
             } else {
@@ -462,9 +469,10 @@ class Raven extends Sprite{
      * @constructor
      * @param {number} x Coordenadas en el eje x
      * @param {number} y Coordenadas en el eje y
+     * @param {speed} speed Velocidad del objeto Raven
      */
-    constructor(x,y){ 
-        super(x, y, 56,32,10,"raven")
+    constructor(x,y,speed){ 
+        super(x, y, 40,20,speed,"raven")
         this.moveLeft = true;
         this.moveInterval = null;
         this.move();
@@ -485,7 +493,7 @@ class Raven extends Sprite{
                 if (this.x >= 730) this.moveLeft = true; 
             }
             this.updPosition();
-        }, 70);
+        }, 60);
     }
 }
 
